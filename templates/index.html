@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="eu">
+<head>
+    <meta charset="utf-8"/>
+    <title>Search user</title>
+</head>
+<body>
+    {% if user.is_authenticated %}
+        What person would you like to talk?<br/>
+        <form method="post" action="{% url 'search' %}">
+            {% csrf_token %}
+            <input name="username" type="search">
+            <input type="submit" value="search"><br/>
+        <form>
+        {% if users %}
+            <h3>User List</h3>
+            {% for user in users %}
+            <input id="username-input" type="text" value="{{ user.username }}">
+            <input id="username-submit" type="button" value="Go Chat!"><br/>
+            {% endfor %}
+        {% endif %}
+    <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+    <p>Not authenticated, LogIn please</p>
+    <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+    <script>
+        document.querySelector('#username-input').focus();
+        document.querySelector('#username-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#username-submit').click();
+            }
+        };
+
+        document.querySelector('#username-submit').onclick = function(e) {
+            var roomName = document.querySelector('#username-input').value;
+            window.location.pathname = '/chat/' + roomName;
+        };
+    </script>
+</body>
+</html>
