@@ -6,7 +6,7 @@
 </head>
 <body>
     {% if user.is_authenticated %}
-        What person would you like to talk?<br/>
+        What person would you like to talk?You auth as {{ user.username }}<br/>
         <form method="post" action="{% url 'search' %}">
             {% csrf_token %}
             <input name="username" type="search">
@@ -15,14 +15,19 @@
         {% if users %}
             <h3>User List</h3>
             {% for user in users %}
-            <input id="username-input" type="text" value="{{ user.username }}">
+            <a id="username-input">{{ user.username }}<a/>
             <input id="username-submit" type="button" value="Go Chat!"><br/>
             {% endfor %}
+        {% else %}
+            {% if found %}
+            <h1>Not found</h1>
+            {% endif %}
         {% endif %}
     <a href="{% url 'logout' %}">Logout</a>
     {% else %}
     <p>Not authenticated, LogIn please</p>
     <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'register' %}">register</a>
     {% endif %}
     <script>
         document.querySelector('#username-input').focus();
@@ -33,7 +38,7 @@
         };
 
         document.querySelector('#username-submit').onclick = function(e) {
-            var roomName = document.querySelector('#username-input').value;
+            var roomName = document.querySelector('#username-input').textContent;
             window.location.pathname = '/chat/' + roomName;
         };
     </script>

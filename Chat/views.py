@@ -35,6 +35,8 @@ class RegistrationView(CreateView):
 
 def FindUser(request):
     users = User.objects.filter(username__contains=request.POST['username']).exclude(username=request.user.username)
+    if len(users) == 0:
+        return render(request, 'index.html', context={'users': users, 'found': 1})
     return render(request, 'index.html', context={'users': users})
 
 
@@ -57,6 +59,6 @@ def room(request, joiner):
         room.users.add(request.user)
         room.users.add(user)
         room.save()
-    history = Chat.objects.filter(room=room)[:100]
+    history = Chat.objects.filter(room=room)[:30]
     return render(request, 'room.html', {'room_name': room.id, 'history': history})
 
