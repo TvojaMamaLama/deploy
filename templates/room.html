@@ -5,17 +5,23 @@
     <title>Chat</title>
 </head>
 <body>
+{% if user.is_authenticated %}
+{% if user.is_banned %}
+ <h1>You banned</h1>
+{% else %}
     {% csrf_token %}
     <textarea id="chat-log" cols="100" rows="20"></textarea><br/>
     <input id="chat-message-input" type="text" size="100"/><br/>
     <input id="chat-message-submit" type="button" value="Send"/><br/>
     <a href="{% url 'index' %}">Main page</a>
     <input id="username" type="hidden" value="{{ user.username }}">
+{% endif %}
+{% endif %}
 </body>
 <script>
     var roomName = {{ room_name }};
     var chatSocket = new WebSocket(
-        'wss://' + window.location.host + '/ws/chat/' + roomName + '/');
+        'ws://' + window.location.host + '/ws/chat/' + roomName + '/');
     {% for message in history %}
         document.querySelector('#chat-log').value += ("{{message.user}}"+ ':' + "{{message.text}}" + '\n');
     {% endfor %}

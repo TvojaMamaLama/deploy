@@ -5,6 +5,9 @@
     <title>Search user</title>
 </head>
 <body>
+    {% if user.is_banned%}
+        <h1>You banned</h1>
+    {%  else %}
     {% if user.is_authenticated %}
         What person would you like to talk?You auth as {{ user.username }}<br/>
         <form method="post" action="{% url 'search' %}">
@@ -12,17 +15,13 @@
             <input name="username" type="search">
             <input type="submit" value="search"><br/>
         <form>
-        {% if users %}
-            <h3>User List</h3>
-            {% for user in users %}
-            <a id="username-input">{{ user.username }}<a/>
-            <input id="username-submit" type="button" value="Go Chat!"><br/>
-            {% endfor %}
-        {% else %}
-            {% if found %}
-            <h1>Not found</h1>
+            {% if user1 == 1 %}
+                <h1>Not found</h1>
+            {% elif user1 %}
+                <h3>User List</h3>
+                <a id="username-input">{{ user1.username }}<a/>
+                <input id="username-submit" type="button" value="Go Chat!"><br/>
             {% endif %}
-        {% endif %}
     <a href="{% url 'logout' %}">Logout</a>
     {% else %}
     <p>Not authenticated, LogIn please</p>
@@ -42,5 +41,6 @@
             window.location.pathname = '/chat/' + roomName;
         };
     </script>
+    {% endif %}
 </body>
 </html>

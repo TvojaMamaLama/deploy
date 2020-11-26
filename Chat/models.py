@@ -1,11 +1,16 @@
 from django.db import models
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+
+
+class User(AbstractUser):
+    is_banned = models.BooleanField(default=False)
 
 
 class Room(models.Model):
     """Модель комнаты чата"""
-    users = models.ManyToManyField(User, verbose_name="Участники", related_name="users")
+    creator = models.ForeignKey(User, verbose_name="Участники", related_name="creator", on_delete=models.CASCADE)
+    joiner = models.ForeignKey(User, related_name='joiner', on_delete=models.CASCADE)
     date = models.DateTimeField("Дата создания", auto_now_add=True)
 
     class Meta:

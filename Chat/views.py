@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
 from django.views.generic.base import TemplateView
 from django.views.generic import CreateView
-from django.contrib.auth.forms import UserCreationForm
+from .forms import UserForm
 from django.contrib.auth import authenticate, login
 from rest_framework.views import APIView
-from django.contrib.auth.models import User
-from .models import Room, Chat
+from .models import Room, Chat, User
 from rest_framework.response import Response
 
 
@@ -17,12 +16,12 @@ class RegistrationView(CreateView):
     template_name = 'registration/register.html'
 
     def get_context_data(self, **kwargs):
-        form = UserCreationForm()
+        form = UserForm()
         context = {'form': form}
         return context
 
     def post(self, request):
-        form = UserCreationForm(request.POST)
+        form = UserForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data['username']
@@ -34,10 +33,13 @@ class RegistrationView(CreateView):
 
 
 def FindUser(request):
-    users = User.objects.filter(username__contains=request.POST['username']).exclude(username=request.user.username)
-    if len(users) == 0:
-        return render(request, 'index.html', context={'users': users, 'found': 1})
-    return render(request, 'index.html', context={'users': users})
+    try:
+        user = User.objects.get(username=request.POST['username'])
+    except User.DoesNotExist:
+        user = 1
+    if user == request.user:
+        return render(request, 'index.html', context={'user1': []})
+    return render(request, 'index.html', context={'user1': user})
 
 
 class chat(APIView):
@@ -50,15 +52,16 @@ class chat(APIView):
 def room(request, joiner):
     try:
         user = User.objects.get(username=joiner)
-    except User.DoesNotExist:
-        return render()
+    except:
+        return redirect('index')
+
     try:
-        room = Room.objects.filter(users__in=[request.user, user])[0]
-    except Room.DoesNotExist:
-        room = Room.objects.create()
-        room.users.add(request.user)
-        room.users.add(user)
-        room.save()
+        room = Room.objects.get(creator=request.user, joiner=user)
+    except:
+        try:
+            room = Room.objects.get(creator=user, joiner=request.user)
+        except:
+            room = Room.objects.create(creator=request.user, joiner=user)
     history = Chat.objects.filter(room=room)[:30]
     return render(request, 'room.html', {'room_name': room.id, 'history': history})
 
